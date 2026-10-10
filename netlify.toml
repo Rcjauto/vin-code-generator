@@ -1,0 +1,20 @@
+[build]
+  publish = "public"
+
+[functions]
+  directory = "netlify/functions"
+
+# The website calls /api; the browser never sees the Apps Script address.
+[[redirects]]
+  from = "/api"
+  to = "/.netlify/functions/api"
+  status = 200
+  force = true
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Content-Type-Options = "nosniff"
+    X-Frame-Options = "DENY"
+    Referrer-Policy = "no-referrer"
+    Cache-Control = "no-cache"
