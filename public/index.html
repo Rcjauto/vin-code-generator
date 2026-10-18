@@ -228,7 +228,7 @@ dialog.wide { width: min(880px, calc(100% - 28px)); }
         <button class="tab" role="tab" id="tab-records" aria-selected="false" aria-controls="panel-records">Records</button>
       </nav>
       <div class="spacer"></div>
-      <label class="langsel">Card language <select id="card-lang"><option value="en">English</option><option value="hi">हिन्दी (Hindi)</option></select></label>
+      <label class="langsel">Card language <select id="card-lang"><option value="hi" selected>हिन्दी (Hindi)</option><option value="en">English</option></select></label>
       <button class="link-btn" id="lock-btn" type="button">Lock</button>
     </div>
   </header>
@@ -353,7 +353,7 @@ const store = {
   del(k) { try { sessionStorage.removeItem(k); } catch (e) {} },
 };
 
-const state = { key: '', lang: 'en', cards: new Map(), records: [], busy: false };
+const state = { key: '', lang: 'hi', cards: new Map(), records: [], busy: false };
 const REQUIRED = []; // battery, charger, motor and controller numbers are optional: the officer can write them by hand
 
 function toast(text, type) {
@@ -466,6 +466,15 @@ $('#gen-form').addEventListener('submit', async e => {
     toast('Enter a quantity from 1 to 10.', 'bad');
     return;
   }
+  if (state.busy) return;
+  const sure = await ask({
+    title: 'Generate VIN?',
+    body: qty === 1
+      ? 'This will create 1 new VIN and save it in the sheet. A VIN cannot be undone once created.'
+      : 'This will create ' + qty + ' new VINs and save them in the sheet. VINs cannot be undone once created.',
+    confirm: qty === 1 ? 'Generate VIN' : 'Generate ' + qty + ' VINs',
+  });
+  if (!sure) return;
   setBusy(btn, true);
   try {
     const { records } = await api('generate', { qty });
@@ -911,7 +920,7 @@ $('#rec-body').addEventListener('click', e => {
   document.body.insertAdjacentHTML('beforeend',
     '<datalist id="dl-battery"></datalist>' +
     '<datalist id="dl-colour"><option value="Ash Grey"><option value="Black"><option value="White"><option value="Red"><option value="Blue"></datalist>' +
-    '<datalist id="dl-model"><option value="I PLANET1"><option value="I PLANET2"></datalist>');
+    '<datalist id="dl-model"><option value="I PLANET1 51.2V 30Ah (1.5)"><option value="I PLANET1.2 51.2V 45Ah (3.2)"></datalist>');
   const saved = store.get('hc-key');
   if (saved && apiReady()) {
     state.key = saved;
