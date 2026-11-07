@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>VIN &amp; Vehicle History Card - Atom DLX</title>
+<link rel="stylesheet" href="/shared/style.css">
+</head>
+<body>
+
+<div id="login-screen" class="login" hidden>
+  <form class="login-card" id="login-form" autocomplete="off">
+    <span class="plate login-plate"><span class="plate-text" style="font-size:1rem">RCJ AUTO FORGE</span></span>
+    <h1>Vehicle history cards - Atom DLX</h1>
+    <p>Enter your ID and password to generate VINs and print cards.</p>
+    <div id="setup-warn" class="setup-warn" hidden>The server address is not set. Open <b>index.html</b> and paste your Apps Script web app URL into <b>API_URL</b>.</div>
+    <label class="field">
+      <span>ID</span>
+      <input type="text" id="login-id" required autofocus autocomplete="username" autocapitalize="none" spellcheck="false">
+    </label>
+    <label class="field" style="margin-top:12px">
+      <span>Password</span>
+      <input type="password" id="login-key" required autocomplete="current-password">
+    </label>
+    <p class="login-err" id="login-err" role="alert"></p>
+    <button class="btn primary" type="submit" id="login-btn">Open</button>
+  </form>
+</div>
+
+<div id="app" hidden>
+  <header class="topbar">
+    <div class="topbar-in">
+      <div class="brand">RCJ Auto Forge<small id="brand-sub">VIN and vehicle history card - Atom DLX</small></div>
+      <nav class="tabs" role="tablist" aria-label="Sections">
+        <button class="tab" role="tab" id="tab-generate" aria-selected="true" aria-controls="panel-generate">Generate</button>
+        <button class="tab" role="tab" id="tab-records" aria-selected="false" aria-controls="panel-records">Records</button>
+      </nav>
+      <div class="spacer"></div>
+      <label class="langsel">Card language <select id="card-lang"><option value="hi" selected>हिन्दी (Hindi)</option><option value="en">English</option></select></label>
+      <button class="link-btn" id="lock-btn" type="button">Lock</button>
+    </div>
+  </header>
+
+  <main>
+    <section id="panel-generate" role="tabpanel" aria-labelledby="tab-generate">
+      <div class="workspace">
+        <form class="panel gen-panel" id="gen-form">
+          <h2>New VINs</h2>
+          <p>The VIN is created for you. The battery, charger, motor and controller numbers are optional here; they can also be written by hand on the printed card.</p>
+          <label class="field">
+            <span>Quantity (1 to 10)</span>
+            <input type="number" id="qty" min="1" max="10" step="1" value="1" inputmode="numeric" required>
+          </label>
+          <button class="btn primary" type="submit" id="gen-btn">Generate VIN</button>
+          <p class="next-hint">Serials continue from the last one saved in the sheet, so a VIN is never repeated.</p>
+        </form>
+
+        <div>
+          <div id="queue" class="queue"></div>
+          <div id="queue-empty" class="empty">
+            <strong>No VINs on screen yet</strong>
+            Generate a VIN, or open one from the Records tab to finish its details.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="panel-records" role="tabpanel" aria-labelledby="tab-records" hidden>
+      <div class="records-head">
+        <div>
+          <h2>Records</h2>
+          <span class="muted">Latest 100 VINs from the sheet</span>
+        </div>
+        <div class="spacer"></div>
+        <label class="field">
+          <span>Search VIN, battery, motor, controller</span>
+          <input type="search" id="rec-search" autocomplete="off">
+        </label>
+        <button class="btn" type="button" id="rec-refresh">Refresh</button>
+      </div>
+      <div class="table-wrap">
+        <table class="rec">
+          <thead>
+            <tr><th>VIN</th><th>Battery no.</th><th>Motor no.</th><th>Controller no.</th><th>Status</th><th>Prints</th><th>Last printed</th><th></th></tr>
+          </thead>
+          <tbody id="rec-body"></tbody>
+        </table>
+        <div id="rec-empty" class="records-empty" hidden></div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<!-- Confirm / reason dialog -->
+<dialog id="dlg-ask" aria-labelledby="ask-title">
+  <div class="dlg-body">
+    <h3 id="ask-title"></h3>
+    <p id="ask-body"></p>
+    <label class="field" id="ask-input-wrap" hidden>
+      <span id="ask-input-label"></span>
+      <input type="text" id="ask-input" maxlength="120" autocomplete="off">
+    </label>
+    <p class="dlg-err" id="ask-err" role="alert"></p>
+  </div>
+  <div class="dlg-foot">
+    <button type="button" class="btn" id="ask-cancel">Cancel</button>
+    <button type="button" class="btn primary" id="ask-ok">Confirm</button>
+  </div>
+</dialog>
+
+<!-- Preview dialog -->
+<dialog id="dlg-preview" class="wide" aria-label="Card preview">
+  <div class="preview-stage"><div class="preview-scale" id="preview-scale"></div></div>
+  <div class="dlg-foot">
+    <span class="muted" style="margin-right:auto;align-self:center">Preview only. The card can be printed with the Print card button.</span>
+    <button type="button" class="btn" id="preview-close">Close</button>
+    <button type="button" class="btn primary" id="preview-print">Print card</button>
+  </div>
+</dialog>
+
+<div class="toasts" id="toasts" aria-live="polite"></div>
+
+<!-- Only filled while a controlled print is running -->
+<div id="print-root"></div>
+<div id="print-block">
+  <h1>This card cannot be printed from here</h1>
+  <p>Vehicle history cards are printed only with the <b>Print card</b> button in the VIN system, so every copy is counted and recorded.</p>
+</div>
+
+<script src="/atomdlx/product.js"></script>
+<script src="/shared/app.js"></script>
+</body>
+</html>
